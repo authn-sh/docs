@@ -1,0 +1,24 @@
+{
+  "defaults": {
+    "standard": "WCAG2AA",
+    "timeout": 30000,
+    "wait": 500,
+    "chromeLaunchConfig": {
+      "args": ["--no-sandbox", "--disable-dev-shm-usage"]
+    }
+  },
+  "urls": [
+    "http://localhost:4321/",
+    "http://localhost:4321/getting-started/quickstart/",
+    "http://localhost:4321/getting-started/first-sign-in/",
+    "http://localhost:4321/concepts/tenancy/",
+    "http://localhost:4321/concepts/api-keys/",
+    "http://localhost:4321/concepts/sessions-and-tokens/",
+    "http://localhost:4321/concepts/webhooks/",
+    "http://localhost:4321/guides/react-sign-in/",
+    "http://localhost:4321/guides/verify-jwt/",
+    "http://localhost:4321/guides/verify-webhooks/",
+    "http://localhost:4321/reference/rest/",
+    "http://localhost:4321/reference/sdks/"
+  ]
+}

@@ -1,0 +1,32 @@
+---
+title: authn.sh
+description: Self-hosted authentication-as-a-service.
+template: splash
+hero:
+  tagline: Drop-in sign-in pages, a real Dashboard, hosted FAPI + BAPI, and webhooks — all from one Docker stack.
+  actions:
+    - text: Self-host quickstart
+      link: /getting-started/quickstart/
+      icon: right-arrow
+      variant: primary
+    - text: Source on GitHub
+      link: https://github.com/authn-sh/authn
+      icon: external
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+<CardGrid>
+  <Card title="Getting started" icon="rocket">
+    [Self-host quickstart](/getting-started/quickstart/) — clone the repo, `docker compose up`, sign in.
+  </Card>
+  <Card title="Concepts" icon="puzzle">
+    [Workspaces, projects, environments](/concepts/tenancy/) — the tenancy spine. Same shape as the Dashboard URLs.
+  </Card>
+  <Card title="Guides" icon="open-book">
+    [Verify JWTs](/guides/verify-jwt/), [verify webhooks](/guides/verify-webhooks/), [embed `<SignIn />`](/guides/react-sign-in/).
+  </Card>
+  <Card title="Reference" icon="document">
+    [REST API](/reference/rest/) and [SDKs](/reference/sdks/) for JS, React, and PHP.
+  </Card>
+</CardGrid>
