@@ -142,6 +142,6 @@ Replaying the link after it's been used returns `422 magic_link_expired`.
 
 | Method | Path | Description |
 | ------ | ---- | ----------- |
-| `POST` | `/v1/client/sign_ins/{sign_in_id}/prepare_first_factor` | Prepare `email_link` factor — sends the email. |
-| `POST` | `/v1/client/sign_ins/{sign_in_id}/attempt_first_factor` | Poll / attempt `email_link` on the originating device. |
+| `POST` | `/v1/client/sign-ins/{sign_in_id}/prepare-first-factor` | Prepare `email_link` factor — sends the email. |
+| `POST` | `/v1/client/sign-ins/{sign_in_id}/attempt-first-factor` | Poll / attempt `email_link` on the originating device. |
 | `GET`  | `/v1/client/handshake` | Consume a `__authn_ticket` and complete the session. |

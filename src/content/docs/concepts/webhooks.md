@@ -103,4 +103,4 @@ permission.deleted
 
 The `data` field of each event carries the full resource snapshot — `Organization`, `OrganizationMembership`, `OrganizationInvitation`, `OrganizationDomain`, `OrganizationMembershipRequest`, `Role`, or `Permission` — so handlers don't need a follow-up fetch in most cases. Magic-link sign-in/sign-up does not introduce its own event type; the outgoing email is reported via the existing `email.created` event.
 
-The live list is published via `GET /v1/event_types` against the BAPI.
+The live list is published via `GET /v1/event-types` against the BAPI.
