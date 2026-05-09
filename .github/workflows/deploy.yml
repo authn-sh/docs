@@ -12,7 +12,6 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    if: ${{ vars.DEPLOY_ENABLED == 'true' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
