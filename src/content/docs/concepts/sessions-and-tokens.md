@@ -28,8 +28,34 @@ The SDK and the operator Dashboard authenticate via a short-lived JWT minted fro
 | `v`   | Token format version (currently `2`). |
 | `fva` | `[seconds_since_first_factor, seconds_since_second_factor]`. v0.1 always has `-1` for the second factor. |
 | `sts` | `active` or `pending`. |
+| `org` | Active-organization claim — present only when the session has an active org set (v0.2+). See below. |
 
 The default lifetime is intentionally short — the SDK auto-refreshes via `POST /v1/client/sessions/{sid}/tokens` before each request that needs auth.
+
+## Active-organization claim (`org`)
+
+When a member sets an active organization, the session JWT gains an `org` claim:
+
+```json
+{
+  "sub": "user_01K…",
+  "org": {
+    "id": "org_01K…",
+    "slug": "acme",
+    "role": "org:admin",
+    "permissions": [
+      "org:sys_domains:manage",
+      "org:sys_domains:read",
+      "org:sys_memberships:manage",
+      "org:sys_memberships:read",
+      "org:sys_profile:delete",
+      "org:sys_profile:manage"
+    ]
+  }
+}
+```
+
+`org` is absent when no organization is active. Backends must treat its absence as "no org context" — never assume a default. See [Organizations](/guides/organizations/) for how to set the active org, and [Roles & Permissions](/reference/roles-and-permissions/) for the permission catalog.
 
 ## Where the JWT lives
 
