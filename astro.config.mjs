@@ -36,6 +36,8 @@ export default defineConfig({
                         { label: 'Embed <SignIn /> in a React app', slug: 'guides/react-sign-in' },
                         { label: 'Verify JWTs in a backend', slug: 'guides/verify-jwt' },
                         { label: 'Verify webhook signatures', slug: 'guides/verify-webhooks' },
+                        { label: 'Organizations', slug: 'guides/organizations' },
+                        { label: 'Magic-link sign-in', slug: 'guides/magic-link' },
                     ],
                 },
                 {
@@ -43,6 +45,7 @@ export default defineConfig({
                     items: [
                         { label: 'REST API', slug: 'reference/rest' },
                         { label: 'SDKs', slug: 'reference/sdks' },
+                        { label: 'Roles & Permissions', slug: 'reference/roles-and-permissions' },
                     ],
                 },
             ],
