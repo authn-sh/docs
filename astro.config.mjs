@@ -2,12 +2,24 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 
+const rawGtmId = process.env.PUBLIC_GTM_ID ?? '';
+const gtmId = /^GTM-[A-Z0-9]+$/.test(rawGtmId) ? rawGtmId : '';
+const head = gtmId
+    ? [
+          {
+              tag: /** @type {const} */ ('script'),
+              content: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${gtmId}');`,
+          },
+      ]
+    : [];
+
 export default defineConfig({
     site: 'https://docs.authn.sh',
     integrations: [
         starlight({
             title: 'authn.sh docs',
             description: 'Self-hosted authentication-as-a-service. Drop in Account Portal pages, sign-in components, and a Dashboard your operators actually want to use.',
+            head,
             social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/authn-sh/authn' }],
             editLink: {
                 baseUrl: 'https://github.com/authn-sh/docs/edit/main/',
