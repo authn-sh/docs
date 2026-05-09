@@ -59,20 +59,20 @@ The REST reference is generated from the [`authn-sh/openapi`](https://github.com
 
 | Method | Path | Description |
 | ------ | ---- | ----------- |
-| `GET` | `/v1/me/organization_memberships` | List the signed-in user's memberships. |
-| `GET` | `/v1/me/organization_invitations` | List the user's pending invitations. |
-| `POST` | `/v1/me/organization_invitations/{inv_id}/accept` | Accept an invitation. |
-| `GET` | `/v1/me/organization_membership_requests` | List the user's membership requests. |
+| `GET` | `/v1/me/organization-memberships` | List the signed-in user's memberships. |
+| `GET` | `/v1/me/organization-invitations` | List the user's pending invitations. |
+| `POST` | `/v1/me/organization-invitations/{inv_id}/accept` | Accept an invitation. |
+| `GET` | `/v1/me/organization-membership-requests` | List the user's membership requests. |
 | `GET` | `/v1/organizations/{id}` | Get an org the user is a member of. |
 | `GET` | `/v1/organizations/{id}/memberships` | List an org's members (user-scoped). |
 | `POST` | `/v1/organizations/{id}/invitations` | Invite a member (requires `org:sys_memberships:manage`). |
 | `POST` | `/v1/organizations/{id}/leave` | Leave an organization. |
-| `PATCH` | `/v1/client/sessions/{sid}/active_organization` | Set the active organization. |
+| `PATCH` | `/v1/client/sessions/{sid}/active-organization` | Set the active organization. |
 
 ### Magic-link
 
 | Method | Path | Description |
 | ------ | ---- | ----------- |
-| `POST` | `/v1/client/sign_ins/{sign_in_id}/prepare_first_factor` | Prepare `email_link` — sends the magic-link email. |
-| `POST` | `/v1/client/sign_ins/{sign_in_id}/attempt_first_factor` | Poll / complete on originating device. |
+| `POST` | `/v1/client/sign-ins/{sign_in_id}/prepare-first-factor` | Prepare `email_link` — sends the magic-link email. |
+| `POST` | `/v1/client/sign-ins/{sign_in_id}/attempt-first-factor` | Poll / complete on originating device. |
 | `GET` | `/v1/client/handshake` | Consume a `__authn_ticket` from the clicked link. |

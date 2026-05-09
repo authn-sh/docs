@@ -58,7 +58,7 @@ VITE_AUTHN_PUBLISHABLE_KEY=pk_live_…paste-yours-here
 ## What just happened
 
 - The SDK decoded `pk_live_…` to find your FAPI URL and called `GET /v1/environment` + `GET /v1/client` to bootstrap.
-- Sign-up POSTed to `/v1/client/sign_ups`, then `prepare_verification` sent the email.
+- Sign-up POSTed to `/v1/client/sign-ups`, then `prepare-verification` sent the email.
 - After `attempt_verification`, the server set a `__session` HttpOnly cookie. `<SignedIn>` started rendering its children; `<UserButton>` mounted with the user's avatar.
 
 Next stops:
