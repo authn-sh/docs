@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.0] — 2026-05-10
+
+### Added
+
+- **Multi-factor authentication guide** — TOTP enrollment dance (start, scan QR, verify), backup codes (one-time reveal, regenerate), removing factors, BAPI operator overrides, instance settings table.
+- **Second-factor sign-in walkthrough** — `needs_second_factor` state, `step: "second"` Challenges, `supported_strategies` narrowing per-user enrollment, backup code format (`xxxx-xxxx`).
+- **Security section components reference** — `<TotpEnrollDialog />`, `<BackupCodesDialog />`, `<RemoveMfaDialog />` props / slots / state machines.
+
+### Changed
+
+- REST reference auto-rebuilt against the v0.3 OpenAPI bundle (TOTP + BackupCode + BackupCodeBatch schemas, MFA endpoints, MultiFactor instance settings).
+
 ## [0.2.0] — 2026-05-10
 
 ### Added
