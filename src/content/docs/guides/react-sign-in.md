@@ -46,6 +46,14 @@ Default is `path`. `virtual` is what the bundled Account Portal uses.
 
 A worked tenant integration ships in v0.1.x; for now, the [Account Portal source](https://github.com/authn-sh/authn/tree/main/resources/js/account-portal) is the canonical example.
 
+## Multi-factor authentication
+
+When a user has MFA enrolled, `<SignIn />` automatically presents the second-factor step after the first factor succeeds — no additional configuration needed. To build a custom second-factor UI or manage enrollment, see:
+
+- [Multi-factor authentication](/guides/multi-factor-authentication/) — TOTP enrollment and backup code management.
+- [Second-factor sign-in](/guides/second-factor-sign-in/) — what `needs_second_factor` looks like and how to issue and answer second-factor challenges.
+- [Security section components](/reference/security-components/) — the `<TotpEnrollDialog />`, `<BackupCodesDialog />`, and `<RemoveMfaDialog />` pre-built components.
+
 ## Adding and verifying email addresses
 
 When a user adds a secondary email via `<UserProfile />` or your own form, the new address starts unverified. Verification is a `Challenge` on the `EmailAddress` resource — the same pattern used for sign-in verification.

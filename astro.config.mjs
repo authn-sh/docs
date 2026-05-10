@@ -50,6 +50,8 @@ export default defineConfig({
                         { label: 'Verify webhook signatures', slug: 'guides/verify-webhooks' },
                         { label: 'Organizations', slug: 'guides/organizations' },
                         { label: 'Magic-link sign-in', slug: 'guides/magic-link' },
+                        { label: 'Multi-factor authentication', slug: 'guides/multi-factor-authentication' },
+                        { label: 'Second-factor sign-in', slug: 'guides/second-factor-sign-in' },
                     ],
                 },
                 {
@@ -58,6 +60,7 @@ export default defineConfig({
                         { label: 'REST API', slug: 'reference/rest' },
                         { label: 'SDKs', slug: 'reference/sdks' },
                         { label: 'Roles & Permissions', slug: 'reference/roles-and-permissions' },
+                        { label: 'Security section components', slug: 'reference/security-components' },
                     ],
                 },
             ],

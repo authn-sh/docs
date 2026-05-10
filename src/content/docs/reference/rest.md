@@ -16,6 +16,32 @@ The REST reference is generated from the [`authn-sh/openapi`](https://github.com
 - Errors follow the envelope `{ "errors": [{ "code", "message", "long_message", "meta" }], "trace_id" }`.
 - Pagination is opaque cursor-based: `?cursor=<token>&limit=<n>`. Responses include `meta.next_cursor` when more rows exist.
 
+## v0.3 endpoints (BAPI)
+
+### MFA admin overrides
+
+| Method | Path | Description |
+| ------ | ---- | ----------- |
+| `POST` | `/v1/users/{id}/verify-totp` | Verify a user's TOTP code server-side (returns `{ verified: bool }`). |
+| `DELETE` | `/v1/users/{id}/mfa` | Reset all MFA factors for a user — deletes TOTP secret and all backup codes. |
+
+## v0.3 endpoints (FAPI)
+
+### TOTP enrollment
+
+| Method | Path | Description |
+| ------ | ---- | ----------- |
+| `POST` | `/v1/me/totp` | Start TOTP enrollment — returns QR code, `otpauth_uri`, and plaintext secret (one-time). |
+| `POST` | `/v1/me/totp/verify` | Confirm enrollment by submitting the first generated 6-digit code. |
+| `DELETE` | `/v1/me/totp` | Remove the signed-in user's TOTP secret. |
+
+### Backup codes
+
+| Method | Path | Description |
+| ------ | ---- | ----------- |
+| `POST` | `/v1/me/backup-codes` | (Re)generate backup codes — plaintext returned exactly once. |
+| `DELETE` | `/v1/me/backup-codes` | Delete all unused backup codes for the signed-in user. |
+
 ## v0.2 endpoints (BAPI)
 
 ### Organizations
