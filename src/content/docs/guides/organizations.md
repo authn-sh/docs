@@ -230,10 +230,57 @@ Authn::organizationDomains($orgId)->create([
 
 ### Verify the domain
 
-Verification proves domain ownership. Two strategies are supported:
+Verification proves domain ownership via a `Challenge` resource. Two strategies are supported:
 
-**DNS TXT** — add a TXT record with the value from `verification.nonce` to your DNS zone, then call `POST /v1/organizations/{org_id}/domains/{domain_id}/verify`.
+**DNS TXT** — the server creates a challenge and returns a `nonce` — the TXT value you must publish in your DNS zone. Your operator publishes the record, then polls `GET /v1/organizations/{org_id}/domains/{domain_id}/challenges/{cid}` until `status: verified`. There is no separate verify call; authn.sh resolves the record on the next poll and flips the status automatically.
 
-**Email code** — an affiliation address at the domain (`admin@acme.com`) receives a 6-digit code; submit it to `POST /v1/organizations/{org_id}/domains/{domain_id}/verify` with `{ "code": "…" }`.
+```bash
+curl -X POST https://<FAPI_URL>/v1/organizations/org_01K.../domains/orgdom_01K.../challenges \
+  -H "Authorization: Bearer <secret_key>" \
+  -H "Content-Type: application/json" \
+  -d '{ "strategy": "dns_txt" }'
+```
+
+The response includes:
+
+```json
+{
+  "id": "cha_01K...",
+  "strategy": "dns_txt",
+  "nonce": "_authn-domain-verify.acme.com TXT \"authn_<nonce>\"",
+  "status": "pending"
+}
+```
+
+Publish the TXT record, then poll:
+
+```bash
+curl https://<FAPI_URL>/v1/organizations/org_01K.../domains/orgdom_01K.../challenges/cha_01K... \
+  -H "Authorization: Bearer <secret_key>"
+```
+
+When the record resolves, `status` flips to `verified` and `OrganizationDomain.verified` becomes `true`. The polling approach is an improvement over a one-shot verify call — your operator can publish the record asynchronously and let the API confirm ownership without a synchronous HTTP round-trip.
+
+**Email code** — an affiliation address at the domain (`admin@acme.com`) receives a 6-digit code. Create a challenge with `strategy: email_code`, then answer it with the code:
+
+```bash
+curl -X POST https://<FAPI_URL>/v1/organizations/org_01K.../domains/orgdom_01K.../challenges \
+  -H "Authorization: Bearer <secret_key>" \
+  -H "Content-Type: application/json" \
+  -d '{ "strategy": "email_code" }'
+
+curl -X POST https://<FAPI_URL>/v1/organizations/org_01K.../domains/orgdom_01K.../challenges/cha_01K.../answer \
+  -H "Authorization: Bearer <secret_key>" \
+  -H "Content-Type: application/json" \
+  -d '{ "code": "123456" }'
+```
+
+```php
+$challenge = Authn::organizationDomainChallenges($orgId, $domainId)->create([
+    'strategy' => 'email_code',
+]);
+
+$challenge->answer(['code' => $request->input('code')]);
+```
 
 Once `verified: true`, the enrollment mode takes effect for future sign-ups.
