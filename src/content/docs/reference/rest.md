@@ -39,7 +39,9 @@ The REST reference is generated from the [`authn-sh/openapi`](https://github.com
 | `POST` | `/v1/organizations/{id}/domains` | Add a domain. |
 | `PATCH` | `/v1/organizations/{id}/domains/{domain_id}` | Update enrollment mode. |
 | `DELETE` | `/v1/organizations/{id}/domains/{domain_id}` | Remove a domain. |
-| `POST` | `/v1/organizations/{id}/domains/{domain_id}/verify` | Submit verification proof. |
+| `POST` | `/v1/organizations/{id}/domains/{domain_id}/challenges` | Create a domain-verification challenge (`dns_txt` or `email_code`). |
+| `POST` | `/v1/organizations/{id}/domains/{domain_id}/challenges/{cid}/answer` | Submit the email code to answer a challenge. |
+| `GET`  | `/v1/organizations/{id}/domains/{domain_id}/challenges/{cid}` | Poll challenge status (`dns_txt` resolves automatically on poll). |
 
 ### Roles & Permissions
 
@@ -68,6 +70,14 @@ The REST reference is generated from the [`authn-sh/openapi`](https://github.com
 | `POST` | `/v1/organizations/{id}/invitations` | Invite a member (requires `org:sys_memberships:manage`). |
 | `POST` | `/v1/organizations/{id}/leave` | Leave an organization. |
 | `PATCH` | `/v1/client/sessions/{sid}/active-organization` | Set the active organization. |
+
+### Email address verification
+
+| Method | Path | Description |
+| ------ | ---- | ----------- |
+| `POST` | `/v1/me/email-addresses/{id}/challenges` | Issue an `email_code` or `email_link` verification challenge. |
+| `POST` | `/v1/me/email-addresses/{id}/challenges/{cid}/answer` | Answer a challenge (code string, or empty body for `email_link`). |
+| `GET`  | `/v1/me/email-addresses/{id}/challenges/{cid}` | Poll challenge status. |
 
 ### Challenges (sign-in)
 

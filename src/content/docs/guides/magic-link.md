@@ -122,6 +122,28 @@ challenge.on('status_change', async (status) => {
 });
 ```
 
+## Verifying additional emails
+
+The same `email_link` strategy works when a signed-in user adds a secondary email address and needs to verify ownership. The flow is identical to sign-in's magic-link path — only the parent resource changes from `sign-in` to `email-address`.
+
+```ts
+import { authn } from '@authn.sh/sdk-js';
+
+const emailAddress = authn.user.emailAddresses.find(e => e.id === targetId);
+
+const challenge = await emailAddress.createChallenge({ strategy: 'email_link' });
+
+await challenge.answer({});
+
+challenge.on('status_change', (status) => {
+    if (status === 'verified') {
+        console.log('email verified');
+    }
+});
+```
+
+The SDK polls `GET /v1/me/email-addresses/{id}/challenges/{cid}` until `status` flips to `verified`. The same 10-minute expiry applies.
+
 ## Replay protection
 
 Every magic-link ticket is:
@@ -140,3 +162,6 @@ Replaying the link after it's been used returns `422 magic_link_expired`.
 | `POST` | `/v1/client/sign-ins/{sid}/challenges/{cid}/answer` | Commit to polling (empty body for `email_link`). |
 | `GET`  | `/v1/client/sign-ins/{sid}/challenges/{cid}` | Poll challenge status on the originating device. |
 | `GET`  | `/v1/client/handshake` | Consume a `__authn_ticket` and complete the session. |
+| `POST` | `/v1/me/email-addresses/{id}/challenges` | Issue an `email_link` or `email_code` challenge for a secondary email. |
+| `POST` | `/v1/me/email-addresses/{id}/challenges/{cid}/answer` | Answer the challenge (code string or empty body for `email_link`). |
+| `GET`  | `/v1/me/email-addresses/{id}/challenges/{cid}` | Poll verification status. |

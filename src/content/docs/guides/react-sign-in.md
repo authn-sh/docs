@@ -45,3 +45,37 @@ Default is `path`. `virtual` is what the bundled Account Portal uses.
 - `<RedirectToSignIn>` — kicks signed-out visitors to your sign-in URL.
 
 A worked tenant integration ships in v0.1.x; for now, the [Account Portal source](https://github.com/authn-sh/authn/tree/main/resources/js/account-portal) is the canonical example.
+
+## Adding and verifying email addresses
+
+When a user adds a secondary email via `<UserProfile />` or your own form, the new address starts unverified. Verification is a `Challenge` on the `EmailAddress` resource — the same pattern used for sign-in verification.
+
+Both `email_code` and `email_link` strategies are available:
+
+```ts
+import { useUser } from '@authn.sh/sdk-react';
+
+const { user } = useUser();
+
+const emailAddress = user.emailAddresses.find(e => e.id === targetId);
+
+const challenge = await emailAddress.createChallenge({ strategy: 'email_code' });
+
+await challenge.answer({ code: userInput });
+```
+
+For `email_link`, omit the code and poll instead:
+
+```ts
+const challenge = await emailAddress.createChallenge({ strategy: 'email_link' });
+
+await challenge.answer({});
+
+challenge.on('status_change', (status) => {
+    if (status === 'verified') {
+        console.log('email verified');
+    }
+});
+```
+
+Once the challenge reaches `status: verified`, `EmailAddress.verified` flips to `true` and `current_challenge_id` clears to `null`. `<UserProfile />` handles this automatically — no custom code needed if you're using the component.
