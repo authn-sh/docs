@@ -16,6 +16,57 @@ The REST reference is generated from the [`authn-sh/openapi`](https://github.com
 - Errors follow the envelope `{ "errors": [{ "code", "message", "long_message", "meta" }], "trace_id" }`.
 - Pagination is opaque cursor-based: `?cursor=<token>&limit=<n>`. Responses include `meta.next_cursor` when more rows exist.
 
+## v0.4 endpoints (BAPI)
+
+### Social sign-in (`OauthProvider`)
+
+| Method | Path | Description |
+| ------ | ---- | ----------- |
+| `GET` | `/v1/oauth-providers` | List every `OauthProvider` row on the environment. |
+| `POST` | `/v1/oauth-providers` | Create a `preset`, `custom_oidc`, or `custom_oauth2` row. |
+| `GET` | `/v1/oauth-providers/{id}` | Fetch a single provider. `client_secret` is never included. |
+| `PATCH` | `/v1/oauth-providers/{id}` | Update toggles, secret, scopes, attribute mapping. `provider_kind` and `provider_key` are immutable. |
+| `DELETE` | `/v1/oauth-providers/{id}` | Soft-delete. Refused while `ExternalAccount` rows still link to this provider. |
+| `POST` | `/v1/oauth-providers/{id}/test` | Dry-run probe — surfaces broken endpoints without redirecting any user. |
+
+### SMS templates
+
+| Method | Path | Description |
+| ------ | ---- | ----------- |
+| `GET` | `/v1/sms-templates` | List the three seeded rows in slug order. |
+| `GET` | `/v1/sms-templates/{slug}` | Fetch one. |
+| `PATCH` | `/v1/sms-templates/{slug}` | Patch `body`, `delivered_by_us`, or `from_number_override`. |
+| `POST` | `/v1/sms-templates/{slug}/revert` | Restore platform defaults. |
+
+## v0.4 endpoints (FAPI)
+
+### Connected accounts
+
+| Method | Path | Description |
+| ------ | ---- | ----------- |
+| `GET` | `/v1/me/external-accounts` | List the signed-in user's `ExternalAccount` rows. |
+| `GET` | `/v1/me/external-accounts/{id}` | Fetch one. |
+| `DELETE` | `/v1/me/external-accounts/{id}` | Unlink (best-effort IdP-side revocation). |
+
+### Phone numbers
+
+| Method | Path | Description |
+| ------ | ---- | ----------- |
+| `GET` | `/v1/me/phone-numbers` | List the user's phone numbers. |
+| `POST` | `/v1/me/phone-numbers` | Add a new phone number (always created unverified). |
+| `GET` | `/v1/me/phone-numbers/{id}` | Fetch one. |
+| `PATCH` | `/v1/me/phone-numbers/{id}` | Toggle `is_primary`, `reserved_for_second_factor`, `default_second_factor`. |
+| `DELETE` | `/v1/me/phone-numbers/{id}` | Remove (refused while `reserved_for_second_factor: true`). |
+| `POST` | `/v1/me/phone-numbers/{id}/challenges` | Issue a `phone_code` verification Challenge. |
+| `POST` | `/v1/me/phone-numbers/{id}/challenges/{cid}/answer` | Answer with the 6-digit code. |
+| `GET` | `/v1/me/phone-numbers/{id}/challenges/{cid}` | Poll Challenge status. |
+
+### OAuth callback
+
+| Method | Path | Description |
+| ------ | ---- | ----------- |
+| `GET` | `/v1/oauth-callback/{provider_key}` | IdP redirect target — browsers only, never called by the SDK. |
+
 ## v0.3 endpoints (BAPI)
 
 ### MFA admin overrides

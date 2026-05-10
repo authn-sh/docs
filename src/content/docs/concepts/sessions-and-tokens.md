@@ -29,6 +29,10 @@ The SDK and the operator Dashboard authenticate via a short-lived JWT minted fro
 | `fva` | `[seconds_since_first_factor, seconds_since_second_factor]`. v0.1 always has `-1` for the second factor. |
 | `sts` | `active` or `pending`. |
 | `org` | Active-organization claim — present only when the session has an active org set (v0.2+). See below. |
+| `tfe` | `true` when the user has at least one second factor enrolled (v0.3+). |
+| `mfa` | Array of enrolled second-factor strategies — `["totp"]`, `["backup_code"]`, `["phone_code"]`, or any combination (v0.3+; `phone_code` lands in v0.4). |
+| `pnv` | `true` when the user has at least one verified phone number (v0.4+). |
+| `dsf` | The user's preferred second-factor strategy: `"phone_code"`, `"totp"`, or `null` (v0.4+). |
 
 The default lifetime is intentionally short — the SDK auto-refreshes via `POST /v1/client/sessions/{sid}/tokens` before each request that needs auth.
 
@@ -56,6 +60,8 @@ When a member sets an active organization, the session JWT gains an `org` claim:
 ```
 
 `org` is absent when no organization is active. Backends must treat its absence as "no org context" — never assume a default. See [Organizations](/guides/organizations/) for how to set the active org, and [Roles & Permissions](/reference/roles-and-permissions/) for the permission catalog.
+
+For the full claim catalogue including `pnv`, `dsf`, and the consumer-side helpers (`VerifiedClaims->hasVerifiedPhoneNumber()`, `getDefaultSecondFactor()`, etc.), see [JWT claims](/reference/jwt-claims/).
 
 ## Where the JWT lives
 

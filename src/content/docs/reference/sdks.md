@@ -19,6 +19,30 @@ description: Official client and server SDKs for authn.sh.
 
 Other languages (Go, Python, Ruby) are on the v0.4+ roadmap. v0.1 ships JS + PHP.
 
+## v0.4 additions
+
+`@authn-sh/sdk-react` gains:
+
+- `<SocialButtons />`, `<PhoneNumberField />`, `<ConnectedAccountsPanel />` — see [Connected-accounts components](/reference/connected-accounts/).
+- `useExternalAccounts()`, `usePhoneNumbers()` hooks.
+- `User.createPhoneNumber()`, `User.getExternalAccounts()` helpers.
+
+`@authn-sh/sdk-js` gains:
+
+- `SignIn.authenticateWithRedirect({ strategy, redirectUrl, redirectUrlComplete })` — drives the OAuth first-factor flow.
+- `Authn.handleRedirectCallback()` — completes the round-trip after the IdP bounces the browser back.
+- `PhoneNumber` and `ExternalAccount` resource classes with the toggle / verify / unlink helpers.
+
+`authn-sh/sdk-php` gains:
+
+- `OauthProvidersManager`, `PhoneNumbersManager`, `ExternalAccountsManager`, `SmsTemplatesManager` BAPI clients.
+- `VerifiedClaims->hasVerifiedPhoneNumber()`, `getDefaultSecondFactor()`, `hasMfa()` — see [JWT claims](/reference/jwt-claims/).
+
+`authn-sh/sdk-php-laravel` gains:
+
+- `@authnHasConnectedAccount('google')` Blade directive.
+- `RequiresConnectedAccount` middleware.
+
 ## Custom integrations
 
 The two extension points that don't need an SDK:
