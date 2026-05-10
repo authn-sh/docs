@@ -20,9 +20,9 @@ The `email_link` strategy sends a one-time link instead of a code. The user clic
 
 The simplest case: the user opens their email on the same device and browser where they started sign-in.
 
-1. Call `prepareFirstFactor` with `strategy: email_link` and a `redirect_url`.
-2. The user receives an email with the magic link.
-3. The link opens in the browser, hitting `GET /v1/client/handshake?__authn_ticket=…&redirect_url=…`.
+1. Create a sign-in, then `POST .../challenges { strategy: "email_link", redirect_url }` — the server emails the magic link and returns a `Challenge` in `pending` status.
+2. Call `POST .../challenges/{cid}/answer {}` — the empty body commits the SDK to the out-of-band path.
+3. The user receives the email and clicks the link, hitting `GET /v1/client/handshake?__authn_ticket=…`.
 4. `clientHandshake` validates the ticket and sets `__client` — the session is now active.
 5. The browser is redirected to `redirect_url`.
 
@@ -35,13 +35,12 @@ function MagicLinkSignIn() {
     const send = async (email: string) => {
         await signIn.create({ identifier: email });
 
-        await signIn.prepareFirstFactor({
+        const challenge = await signIn.createChallenge({
             strategy: 'email_link',
-            emailAddressId: signIn.supportedFirstFactors
-                ?.find((f) => f.strategy === 'email_link')
-                ?.emailAddressId ?? '',
             redirectUrl: `${window.location.origin}/sso-callback`,
         });
+
+        await challenge.answer({});
     };
 
     if (!isLoaded) return null;
@@ -72,7 +71,7 @@ import { MagicLinkLanding } from '@authn.sh/sdk-react';
 
 The user starts sign-in on a laptop, opens the email on their phone, and clicks the link there. The laptop tab must poll until the click resolves.
 
-authn.sh handles this via the `__client` cookie. The originating device polls `getClient` while the other device completes the handshake:
+authn.sh handles this via the `Challenge` sub-resource. After `answer({})`, the SDK polls `GET /v1/client/sign-ins/{sid}/challenges/{cid}` on the originating device until `status` flips to `verified` or `transferable`:
 
 ```tsx
 import { useSignIn } from '@authn.sh/sdk-react';
@@ -83,19 +82,15 @@ function MagicLinkSignInWithPolling() {
     const send = async (email: string) => {
         await signIn.create({ identifier: email });
 
-        const factor = signIn.supportedFirstFactors?.find(
-            (f) => f.strategy === 'email_link',
-        );
-
-        await signIn.prepareFirstFactor({
+        const challenge = await signIn.createChallenge({
             strategy: 'email_link',
-            emailAddressId: factor?.emailAddressId ?? '',
             redirectUrl: `${window.location.origin}/sso-callback`,
         });
 
-        // SDK polls getClient automatically; subscribe to status changes
-        signIn.on('status_change', (status) => {
-            if (status === 'complete') {
+        await challenge.answer({});
+
+        challenge.on('status_change', (status) => {
+            if (status === 'verified') {
                 window.location.href = '/dashboard';
             }
         });
@@ -103,13 +98,13 @@ function MagicLinkSignInWithPolling() {
 }
 ```
 
-The SDK polls every 2 seconds via `POST /v1/client/sessions/{sid}/tokens` on the originating device. When the other device clicks the link and `clientHandshake` validates the ticket, the session on the originating device transitions to `complete` on the next poll.
+The SDK polls `GET /v1/client/sign-ins/{sid}/challenges/{cid}` every 2 seconds for the first minute, then every 5 seconds for up to 5 minutes. When the other device clicks the link and `clientHandshake` validates the ticket, the challenge flips to `verified` on the next poll.
 
 The cross-device poll window expires after 10 minutes. If the user hasn't clicked by then, the sign-in must be restarted.
 
 ## Transferable flow
 
-If the user who clicks the link has no account, they are transferred to sign-up automatically. `<MagicLinkLanding />` handles this transparently — pass both `afterSignInUrl` and `afterSignUpUrl` and the component routes to the right one.
+If the user who clicks the link has no account, the challenge flips to `transferable` instead of `verified`. `<MagicLinkLanding />` handles this transparently — pass both `afterSignInUrl` and `afterSignUpUrl` and the component routes to the right one.
 
 You can also handle it manually:
 
@@ -117,15 +112,14 @@ You can also handle it manually:
 import { authn } from '@authn.sh/sdk-js';
 
 const signIn = authn.client.signIn;
-const result = await signIn.attemptFirstFactor({ strategy: 'email_link' });
+const challenge = await signIn.createChallenge({ strategy: 'email_link', redirectUrl: '...' });
+await challenge.answer({});
 
-if (result.status === 'needs_transfer') {
-    // Create a sign-up using the email from the sign-in attempt
-    const signUp = await authn.client.signUp.create({
-        transfer: true,
-    });
-    // continue sign-up flow
-}
+challenge.on('status_change', async (status) => {
+    if (status === 'transferable') {
+        const signUp = await authn.client.signUp.create({ transfer: true });
+    }
+});
 ```
 
 ## Replay protection
@@ -142,6 +136,7 @@ Replaying the link after it's been used returns `422 magic_link_expired`.
 
 | Method | Path | Description |
 | ------ | ---- | ----------- |
-| `POST` | `/v1/client/sign-ins/{sign_in_id}/prepare-first-factor` | Prepare `email_link` factor — sends the email. |
-| `POST` | `/v1/client/sign-ins/{sign_in_id}/attempt-first-factor` | Poll / attempt `email_link` on the originating device. |
+| `POST` | `/v1/client/sign-ins/{sid}/challenges` | Issue an `email_link` challenge — sends the magic-link email. |
+| `POST` | `/v1/client/sign-ins/{sid}/challenges/{cid}/answer` | Commit to polling (empty body for `email_link`). |
+| `GET`  | `/v1/client/sign-ins/{sid}/challenges/{cid}` | Poll challenge status on the originating device. |
 | `GET`  | `/v1/client/handshake` | Consume a `__authn_ticket` and complete the session. |

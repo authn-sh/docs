@@ -69,10 +69,24 @@ The REST reference is generated from the [`authn-sh/openapi`](https://github.com
 | `POST` | `/v1/organizations/{id}/leave` | Leave an organization. |
 | `PATCH` | `/v1/client/sessions/{sid}/active-organization` | Set the active organization. |
 
-### Magic-link
+### Challenges (sign-in)
 
 | Method | Path | Description |
 | ------ | ---- | ----------- |
-| `POST` | `/v1/client/sign-ins/{sign_in_id}/prepare-first-factor` | Prepare `email_link` — sends the magic-link email. |
-| `POST` | `/v1/client/sign-ins/{sign_in_id}/attempt-first-factor` | Poll / complete on originating device. |
-| `GET` | `/v1/client/handshake` | Consume a `__authn_ticket` from the clicked link. |
+| `POST` | `/v1/client/sign-ins/{sid}/challenges` | Issue a challenge; server picks `step` from sign-in state. |
+| `POST` | `/v1/client/sign-ins/{sid}/challenges/{cid}/answer` | Answer a challenge (password, code, or empty body for `email_link`). |
+| `GET`  | `/v1/client/sign-ins/{sid}/challenges/{cid}` | Fetch challenge — used for magic-link cross-device polling. |
+
+### Challenges (sign-up)
+
+| Method | Path | Description |
+| ------ | ---- | ----------- |
+| `POST` | `/v1/client/sign-ups/{sid}/challenges` | Issue a verification challenge on a sign-up. |
+| `POST` | `/v1/client/sign-ups/{sid}/challenges/{cid}/answer` | Answer a sign-up challenge. |
+| `GET`  | `/v1/client/sign-ups/{sid}/challenges/{cid}` | Fetch challenge — used for magic-link cross-device polling. |
+
+### Handshake
+
+| Method | Path | Description |
+| ------ | ---- | ----------- |
+| `GET` | `/v1/client/handshake` | Consume a `__authn_ticket` from the clicked magic link. |
