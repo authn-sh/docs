@@ -103,4 +103,33 @@ permission.deleted
 
 The `data` field of each event carries the full resource snapshot — `Organization`, `OrganizationMembership`, `OrganizationInvitation`, `OrganizationDomain`, `OrganizationMembershipRequest`, `Role`, or `Permission` — so handlers don't need a follow-up fetch in most cases. Magic-link sign-in/sign-up does not introduce its own event type; the outgoing email is reported via the existing `email.created` event.
 
+### v0.4
+
+```
+oauthProvider.created
+oauthProvider.updated
+oauthProvider.deleted
+externalAccount.created
+externalAccount.updated
+externalAccount.deleted
+phoneNumber.created
+phoneNumber.updated
+phoneNumber.deleted
+smsTemplate.updated
+smsTemplate.reverted
+```
+
+`data` carries `OauthProvider`, `ExternalAccount`, `PhoneNumber`, or `SmsTemplate`. The SMS-template `revert` event re-emits the row in its post-revert (back-to-default) shape.
+
+### v0.5
+
+```
+passkey.added
+passkey.removed
+instance.config.appearance_updated
+localization.updated
+```
+
+The two passkey events carry a `Passkey` resource on `data`. The two configuration events carry a `{ previous, current, diff }` triple — the `diff` is shaped like the corresponding `PATCH` request body (`Appearance` for appearance, `LocalizationUpdateRequest` for localization), so audit handlers can replay the change without diffing the full blobs themselves.
+
 The live list is published via `GET /v1/event-types` against the BAPI.

@@ -39,6 +39,7 @@ export default defineConfig({
                         { label: 'Workspaces, projects, environments', slug: 'concepts/tenancy' },
                         { label: 'API keys', slug: 'concepts/api-keys' },
                         { label: 'Sessions and tokens', slug: 'concepts/sessions-and-tokens' },
+                        { label: 'Passkeys', slug: 'concepts/passkeys' },
                         { label: 'Webhooks', slug: 'concepts/webhooks' },
                     ],
                 },
@@ -57,6 +58,35 @@ export default defineConfig({
                         { label: 'Multi-factor authentication', slug: 'guides/multi-factor-authentication' },
                         { label: 'Second-factor sign-in', slug: 'guides/second-factor-sign-in' },
                         { label: 'SMS MFA', slug: 'guides/sms-mfa' },
+                    ],
+                },
+                {
+                    label: 'Customization',
+                    items: [
+                        { label: 'Theming', slug: 'customization/theming' },
+                        { label: 'Localization', slug: 'customization/localization' },
+                    ],
+                },
+                {
+                    label: 'Social providers',
+                    items: [
+                        { label: 'Discord', slug: 'social-providers/discord' },
+                        { label: 'Facebook', slug: 'social-providers/facebook' },
+                        { label: 'LinkedIn', slug: 'social-providers/linkedin' },
+                        { label: 'X (Twitter)', slug: 'social-providers/x' },
+                        { label: 'GitLab', slug: 'social-providers/gitlab' },
+                        { label: 'Slack', slug: 'social-providers/slack' },
+                    ],
+                },
+                {
+                    label: 'React components',
+                    items: [
+                        { label: '<SignIn />', slug: 'sdk/react/components/sign-in' },
+                        { label: '<SignUp />', slug: 'sdk/react/components/sign-up' },
+                        { label: '<UserProfile />', slug: 'sdk/react/components/user-profile' },
+                        { label: '<UserButton />', slug: 'sdk/react/components/user-button' },
+                        { label: '<OrganizationProfile />', slug: 'sdk/react/components/organization-profile' },
+                        { label: '<OrganizationSwitcher />', slug: 'sdk/react/components/organization-switcher' },
                     ],
                 },
                 {
