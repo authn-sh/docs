@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.5.0] — 2026-05-11
+
+### Added
+
+- **Concepts → Passkeys** — the `Passkey` resource shape (public surface vs server-side credential bytes), the WebAuthn registration ceremony (begin / complete steps, the `PasskeyCreationOptions` envelope, `exclude_credentials[]` semantics), the sign-in (assertion) ceremony, the four passkey-specific error codes (`passkey_no_credentials`, `passkey_assertion_invalid`, `passkey_origin_mismatch`, `passkey_user_handle_mismatch`), RP-ID + origin allowlist guidance for self-hosters, and the recovery flow matrix.
+- **Customization → Theming** — the `Appearance` shape (variables / elements / layout), the full token + element-key catalogues, server-side editing via `PATCH /v1/instance/appearance` and the dashboard editor, client-side overrides via the `appearance` prop with deep per-key merge semantics, and four common recipes (brand-colour override, dark-mode palette, Tailwind-class layering, hidden optional fields).
+- **Customization → Localization** — resolution order (active locale → overrides → fallback → hard fallback), the five shipped locales, the `Localization` shape, the dashboard editor + `PATCH` sparse-merge / `null`-deletes-key semantics, the public CORS-open `GET /v1/localization/{locale}` endpoint with `Cache-Control` + `ETag` guidance, `{variable}` and `{count, plural, …}` placeholder syntax, and a walkthrough for adding a new locale via `supported_locales[]` + a full override blob.
+- **Social providers → Discord / Facebook / LinkedIn / X / GitLab / Slack** — one page per provider covering IdP-side app registration, default scopes, `attribute_mapping` defaults, and provider-specific footguns (Facebook's nested `picture.data.url`, X's missing `email`, Slack's "Sign in with Slack" vs "Add to Slack", GitLab self-managed instance via `custom_oidc`).
+- **React components reference (v1)** — final prop reference for `<SignIn />`, `<SignUp />`, `<UserProfile />`, `<UserButton />`, `<OrganizationProfile />`, `<OrganizationSwitcher />`, including the `routing` / `path` / `appearance` / `localization` props, the internal state machines, custom-page slots (`<UserProfile.Page />`, `<OrganizationProfile.Page />`), and composition hooks for users who want finer-grained control.
+
+### Changed
+
+- **Webhooks concept** — event-type catalogue extended with the v0.4 events (`oauthProvider.*`, `externalAccount.*`, `phoneNumber.*`, `smsTemplate.*`) and the v0.5 events (`passkey.added`, `passkey.removed`, `instance.config.appearance_updated`, `localization.updated`). The two configuration events carry a `{ previous, current, diff }` triple so audit handlers can replay the change without diffing full blobs.
+- **REST reference** auto-rebuilt against the v0.5 OpenAPI bundle: `Passkey`, `PasskeyCreationOptions`, `PasskeyRequestOptions`, `PasskeyAttestation`, `PasskeyAssertion`, `Appearance`, `Localization`, `LocalizationUpdateRequest` schemas; FAPI `/v1/me/passkeys` CRUD + `/begin-registration` / `/complete-registration/{cid}` ceremony paths; FAPI sign-in `Challenge.strategy: passkey` ceremony; BAPI `/v1/instance/appearance` + `/v1/instance/localization` (GET / PUT / PATCH); the public CORS-open FAPI `/v1/localization/{locale}` endpoint; six new preset `provider_key` values on `OauthProvider.yaml` (`discord`, `facebook`, `linkedin`, `x`, `gitlab`, `slack`).
+- Sidebar reorganized — new top-level **Customization**, **Social providers**, and **React components** sections.
+
 ## [0.4.0] — 2026-05-10
 
 ### Added
