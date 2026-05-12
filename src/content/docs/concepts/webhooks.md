@@ -150,4 +150,23 @@ scimUser.deprovisioned
 - `scimToken.*` → `ScimToken`. The plaintext `token` is **never** in the payload — only the `prefix`. Captures token issuance / revocation for audit handlers.
 - `scimUser.*` → `{ user: User, enterprise_connection_id, organization_id }`. The triple carries the connection that drove the SCIM operation plus the scoping org, so audit handlers can route without a follow-up lookup.
 
+### v0.7
+
+```
+jwtTemplate.created
+jwtTemplate.updated
+jwtTemplate.deleted
+oauthApplication.created
+oauthApplication.updated
+oauthApplication.deleted
+authorizationGrant.granted
+authorizationGrant.revoked
+```
+
+`data` carries:
+
+- `jwtTemplate.*` → `JwtTemplate`. The write-only `custom_signing_key` is **never** in the payload — same write-only contract as the GET responses.
+- `oauthApplication.*` → `OauthApplication`. The write-only `client_secret` is **never** in the payload — even on `oauthApplication.created`, the only place plaintext is surfaced is the BAPI create response.
+- `authorizationGrant.*` → `AuthorizationGrant`. Fires when a user first consents (`granted`) and on revocation (`revoked` — both user-driven via `<UserProfile />` and operator-driven via BAPI). `meta.surface` distinguishes `"user"` from `"operator"`.
+
 The live list is published via `GET /v1/event-types` against the BAPI.

@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.7.0] — 2026-05-12
+
+### Added
+
+- **OAuth provider mode** — new top-level **OAuth provider mode** section under Concepts covering the conceptual model (`OauthApplication` + `AuthorizationGrant` resources, the five new FAPI endpoints — `/oauth/authorize`, `/oauth/token`, `/oauth/token_info`, `/oauth/userinfo`, `/.well-known/openid-configuration`), the registration walkthrough (operator dashboard wizard — public vs confidential clients, strict redirect-URI matching, scope registration, consent-screen config, client-secret rotation contract), the canonical authorization-code grant flow (RFC 6749 §4.1 + OIDC §3.1.2.1 trace, refresh-token rotation, RFC 6749 §4.1.2.1 error codes), PKCE for public clients (mandatory `code_challenge_method=S256`, length / alphabet bounds, generation snippets for JS / Python), and the discovery endpoint + JWKS (full document shape, supported scopes / grants / claims, `oidc-client-ts` / NextAuth / `requests-oauthlib` consumer recipes, why client libraries should always read discovery rather than hard-code endpoints).
+- **Concepts → JWT templates** — the `JwtTemplate` resource (claims as Liquid expressions over the User / Session / Organization / org_memberships snapshots, `lifetime_seconds` 60..86400, `allowed_clock_skew_seconds` 0..60, RS256 / ES256 / HS256 signing, optional write-only `custom_signing_key` with per-template JWKS at `/.well-known/jwt-template-jwks/<name>.json`), the Liquid placeholder reference (`user.*` minus `private_metadata`, `session.*`, `session.active_organization*`, `org_memberships[]`, built-in filters + `date_unix` / `urlencode` helpers), the always-stamped standard claims (`iss`, `iat`, `exp`, `nbf`, `aud`, `jti`), SDK consumption via `getToken({ template: <name> })`, and lifetime + clock-skew tradeoffs.
+- **Guides → SCIM admin via BAPI** — the v0.6 carryover now live. Issue / list / revoke SCIM tokens programmatically via `$authn->organizations()->scimTokens()` (and the matching JS shape), per-org `ScimAttributeMapping` `PUT` override, a full onboarding-flow worked example, a 90-day rotation cron pattern, the BAPI / FAPI surface distinction via `event.meta.surface`, and the no-permission-gate auth model with scoped BAPI keys as the per-engineer audit-trail option.
+- **`<UserProfile />` reference** — new **Authorized apps** section documenting the third-party `OauthApplication` consent-grant list, what's surfaced per entry (name + homepage, granted scopes, `granted_at` / `last_used_at`), the auto-hide rules, the hard-delete-on-revoke contract, and the `<UserProfile.AuthorizedApps />` subcomponent for relocating the section onto a dedicated `/integrations` page.
+
+### Changed
+
+- **Webhooks concept** — event-type catalogue extended with the v0.7 events (`jwtTemplate.{created,updated,deleted}` with `custom_signing_key` stripped; `oauthApplication.{created,updated,deleted}` with `client_secret` stripped; `authorizationGrant.{granted,revoked}` with `meta.surface` distinguishing user-driven from operator-driven revocation).
+- **REST reference** auto-rebuilt against the v0.7 OpenAPI bundle: BAPI `/v1/jwt-templates` CRUD + `/v1/users/{user_id}/jwt-templates/{name}/tokens` backend-issuance path; BAPI `/v1/oauth-applications` CRUD + `/rotate-secret` + per-app `authorization-grants` admin view; BAPI SCIM admin mirror (`/v1/organizations/{org_id}/scim/*`) closing the v0.6 deferral; BAPI `/v1/enterprise-accounts` spec backfill; FAPI OAuth provider mode endpoints (`/oauth/authorize`, `/oauth/token`, `/oauth/token_info`, `/oauth/userinfo`, `/.well-known/openid-configuration`); FAPI `/v1/me/oauth-authorization-grants` user-scoped view.
+- Sidebar reorganized — new top-level **OAuth provider mode** section listing the five new pages; **Concepts** adds JWT templates; **SCIM 2.0** adds the BAPI walkthrough.
+
 ## [0.6.0] — 2026-05-11
 
 ### Added

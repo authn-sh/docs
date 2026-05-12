@@ -16,6 +16,79 @@ The REST reference is generated from the [`authn-sh/openapi`](https://github.com
 - Errors follow the envelope `{ "errors": [{ "code", "message", "long_message", "meta" }], "trace_id" }`.
 - Pagination is opaque cursor-based: `?cursor=<token>&limit=<n>`. Responses include `meta.next_cursor` when more rows exist.
 
+## v0.7 endpoints (BAPI)
+
+### JWT templates {#jwt-templates-bapi}
+
+| Method | Path | Description |
+| ------ | ---- | ----------- |
+| `GET` | `/v1/jwt-templates` | List every `JwtTemplate` on the environment. |
+| `POST` | `/v1/jwt-templates` | Create. `name` must be unique per env. `custom_signing_key` is write-only. |
+| `GET` | `/v1/jwt-templates/{id}` | Fetch one. `custom_signing_key` is never returned. |
+| `PATCH` | `/v1/jwt-templates/{id}` | Update name, claims, lifetime, allowed_clock_skew, signing_algorithm. Send `null` on `custom_signing_key` to clear. |
+| `DELETE` | `/v1/jwt-templates/{id}` | Hard-delete. SDK calls to `getToken({ template: <name> })` thereafter fail with `404`. |
+| `POST` | `/v1/users/{user_id}/jwt-templates/{name}/tokens` | Mint a token for a specific user — backend-issuance path with no browser session. |
+
+### OAuth applications
+
+| Method | Path | Description |
+| ------ | ---- | ----------- |
+| `GET` | `/v1/oauth-applications` | List every `OauthApplication` on the environment. |
+| `POST` | `/v1/oauth-applications` | Register a third-party app. **`client_secret` is returned exactly once on this response.** `is_public` is immutable. |
+| `GET` | `/v1/oauth-applications/{id}` | Fetch one. `client_secret` is never included. |
+| `PATCH` | `/v1/oauth-applications/{id}` | Update name, homepage_url, redirect_uris, scopes, consent_screen. `is_public` and `client_id` are immutable. |
+| `DELETE` | `/v1/oauth-applications/{id}` | Hard-delete. Revokes every linked `AuthorizationGrant`. |
+| `POST` | `/v1/oauth-applications/{id}/rotate-secret` | Mint a fresh `client_secret`. **No overlap window — old secret is invalidated immediately.** |
+| `GET` | `/v1/oauth-applications/{id}/authorization-grants` | List every `AuthorizationGrant` for this app (operator view across all users). |
+| `DELETE` | `/v1/oauth-applications/{id}/authorization-grants/{grant_id}` | Revoke a specific grant (operator unlink). |
+
+### BAPI SCIM admin
+
+The v0.6 deferral — operator-side mirror of the per-org FAPI SCIM surface.
+
+| Method | Path | Description |
+| ------ | ---- | ----------- |
+| `GET` | `/v1/organizations/{org_id}/scim/endpoint` | Read the SCIM endpoint URL for the org. |
+| `GET` | `/v1/organizations/{org_id}/scim/tokens` | List active + revoked `ScimToken` rows. Plaintext never returned. |
+| `POST` | `/v1/organizations/{org_id}/scim/tokens` | Issue a SCIM token. **Plaintext returned exactly once.** |
+| `POST` | `/v1/organizations/{org_id}/scim/tokens/{id}/revoke` | Revoke. |
+| `GET` | `/v1/organizations/{org_id}/scim/attribute-mappings` | Read the per-org override (or defaults when no override is set). |
+| `PUT` | `/v1/organizations/{org_id}/scim/attribute-mappings` | Replace the override. Empty `mapping: {}` reverts to defaults. |
+
+### Enterprise accounts (admin)
+
+Spec backfill — `EnterpriseAccount` listing / get / delete were live since v0.6 but not in the OpenAPI bundle.
+
+| Method | Path | Description |
+| ------ | ---- | ----------- |
+| `GET` | `/v1/enterprise-accounts` | List every `EnterpriseAccount` on the env (filter by `user_id` / `enterprise_connection_id`). |
+| `GET` | `/v1/enterprise-accounts/{id}` | Fetch one. |
+| `DELETE` | `/v1/enterprise-accounts/{id}` | Admin unlink — preserves the underlying `User`. |
+
+## v0.7 endpoints (FAPI)
+
+### OAuth provider mode
+
+All five are hosted on the FAPI server (the env's customer-facing origin). None of them live under `/v1/client/...` — they're top-level OAuth-spec endpoints.
+
+| Method | Path | Description |
+| ------ | ---- | ----------- |
+| `GET` | `/oauth/authorize` | Authorization-code grant entry point. Renders sign-in + consent, then `302` to `redirect_uri`. RFC 6749 §4.1 + OIDC §3.1.2.1. |
+| `POST` | `/oauth/token` | Exchange `authorization_code` for tokens, or refresh-token grant. `client_secret_basic` / `client_secret_post` / `none` auth (per `is_public`). |
+| `POST` | `/oauth/token_info` | Token introspection per RFC 7662. |
+| `GET` | `/oauth/userinfo` | OIDC userinfo. Scope-filtered claims. Bearer-token auth. |
+| `GET` | `/.well-known/openid-configuration` | OIDC discovery document. Public, CORS-open, cached 5 minutes. |
+
+### User-scoped authorization grants
+
+The signed-in user's view of their granted apps — backs `<UserProfile />`'s **Authorized apps** section.
+
+| Method | Path | Description |
+| ------ | ---- | ----------- |
+| `GET` | `/v1/me/oauth-authorization-grants` | List the user's active `AuthorizationGrant` rows. |
+| `GET` | `/v1/me/oauth-authorization-grants/{id}` | Fetch one. |
+| `DELETE` | `/v1/me/oauth-authorization-grants/{id}` | Revoke — hard-deletes the row. Subsequent third-party-app refresh calls return `401 invalid_grant`. |
+
 ## v0.6 endpoints (BAPI)
 
 ### Enterprise SSO (instance-wide)
