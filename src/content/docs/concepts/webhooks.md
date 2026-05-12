@@ -109,17 +109,14 @@ The `data` field of each event carries the full resource snapshot — `Organizat
 oauthProvider.created
 oauthProvider.updated
 oauthProvider.deleted
-externalAccount.created
-externalAccount.updated
-externalAccount.deleted
+externalAccount.connected
+externalAccount.unlinked
 phoneNumber.created
-phoneNumber.updated
-phoneNumber.deleted
-smsTemplate.updated
-smsTemplate.reverted
+phoneNumber.verified
+phoneNumber.removed
 ```
 
-`data` carries `OauthProvider`, `ExternalAccount`, `PhoneNumber`, or `SmsTemplate`. The SMS-template `revert` event re-emits the row in its post-revert (back-to-default) shape.
+`data` carries `OauthProvider`, `ExternalAccount`, or `PhoneNumber`. The `externalAccount.*` pair fires when a user links / unlinks an IdP via `<SocialButtons />`; `phoneNumber.verified` fires when the verify-challenge resolves (separate from the `phoneNumber.created` row creation, since the row is created unverified).
 
 ### v0.5
 
@@ -131,5 +128,26 @@ localization.updated
 ```
 
 The two passkey events carry a `Passkey` resource on `data`. The two configuration events carry a `{ previous, current, diff }` triple — the `diff` is shaped like the corresponding `PATCH` request body (`Appearance` for appearance, `LocalizationUpdateRequest` for localization), so audit handlers can replay the change without diffing the full blobs themselves.
+
+### v0.6
+
+```
+enterpriseConnection.created
+enterpriseConnection.updated
+enterpriseConnection.deleted
+enterpriseAccount.connected
+enterpriseAccount.unlinked
+scimToken.issued
+scimToken.revoked
+scimUser.provisioned
+scimUser.deprovisioned
+```
+
+`data` carries:
+
+- `enterpriseConnection.*` → `EnterpriseConnection`. The write-only secrets (`oidc_client_secret`, `saml_signing_key`) are **never** in the payload — encrypted at rest.
+- `enterpriseAccount.*` → `EnterpriseAccount`. Fires on first SSO sign-in (`connected`) and on operator unlink (`unlinked`).
+- `scimToken.*` → `ScimToken`. The plaintext `token` is **never** in the payload — only the `prefix`. Captures token issuance / revocation for audit handlers.
+- `scimUser.*` → `{ user: User, enterprise_connection_id, organization_id }`. The triple carries the connection that drove the SCIM operation plus the scoping org, so audit handlers can route without a follow-up lookup.
 
 The live list is published via `GET /v1/event-types` against the BAPI.

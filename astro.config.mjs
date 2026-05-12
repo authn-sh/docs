@@ -40,6 +40,8 @@ export default defineConfig({
                         { label: 'API keys', slug: 'concepts/api-keys' },
                         { label: 'Sessions and tokens', slug: 'concepts/sessions-and-tokens' },
                         { label: 'Passkeys', slug: 'concepts/passkeys' },
+                        { label: 'Enterprise SSO', slug: 'concepts/enterprise-sso' },
+                        { label: 'SCIM attribute mapping', slug: 'concepts/scim-attribute-mapping' },
                         { label: 'Webhooks', slug: 'concepts/webhooks' },
                     ],
                 },
@@ -58,6 +60,17 @@ export default defineConfig({
                         { label: 'Multi-factor authentication', slug: 'guides/multi-factor-authentication' },
                         { label: 'Second-factor sign-in', slug: 'guides/second-factor-sign-in' },
                         { label: 'SMS MFA', slug: 'guides/sms-mfa' },
+                        { label: 'Per-org SSO setup', slug: 'guides/per-org-sso-setup' },
+                        { label: 'Verified domains', slug: 'guides/verified-domains' },
+                    ],
+                },
+                {
+                    label: 'SCIM 2.0',
+                    items: [
+                        { label: 'Okta', slug: 'guides/scim/okta' },
+                        { label: 'Azure AD / Entra ID', slug: 'guides/scim/azure-ad' },
+                        { label: 'Google Workspace', slug: 'guides/scim/google-workspace' },
+                        { label: 'Rippling', slug: 'guides/scim/rippling' },
                     ],
                 },
                 {

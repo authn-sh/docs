@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.6.0] — 2026-05-11
+
+### Added
+
+- **Concepts → Enterprise SSO** — the unified `EnterpriseConnection` model covering both SAML 2.0 and OIDC under one resource (with `protocol` discriminator + immutable scope choice), the instance-wide vs org-scoped split (`organization_id: null` vs set), the server-computed read-only URLs operators paste into the IdP (`saml_acs_url`, `saml_sp_entity_id`, `oidc_redirect_uri`), the write-only secret-handling story for `oidc_client_secret` + `saml_signing_key`, the five-key `attribute_mapping` shape with per-protocol defaults, and the persistent-link `EnterpriseAccount` resource (`User.enterprise_accounts[]`).
+- **Concepts → SCIM attribute mapping** — the two-layer defaults + per-org override model, the standard SCIM path → authn.sh field mapping table, the `public_metadata.<key>` routing prefix, the Liquid expression syntax for value transforms (`downcase` / `split` / `replace` / `default`), and the resolver rules around `active: false` soft-delete, verified-true email writes, `externalId` dedup, and per-org token scoping.
+- **Guides → Per-org SSO setup walkthrough** — the customer-side flow: org admin uses `<OrganizationProfile />` → **Single Sign-On** to add a connection, including the SAML metadata XML round-trip with SP-side EntityID / ACS pasted into the IdP, the OIDC discovery preview, the test-connection dry-run probe, going live, and the SP signing key story for SAML self-hosters (`AUTHN_SAML_SP_SIGNING_KEY_PATH` / `AUTHN_SAML_SP_SIGNING_KEY_B64` env vars on the server; mirrored by the chart and CDK construct).
+- **Guides → Verified domains and enrollment modes** — DNS-TXT verification (`domain_dns_txt` strategy, the `_authn-domain-verify.<domain>` record, polling for verification), the email-code fallback, the three enrollment modes (`manual_invitation` / `automatic_invitation` / `automatic_suggestion`) with their behaviour on both plain sign-ups **and** enterprise-SSO sign-ins, the two enterprise-SSO routing failure modes (`enterprise_sso_no_connection`, `enterprise_sso_multiple_connections`), and how multi-connection domains stack during migrations.
+- **Guides → SCIM 2.0 with Okta / Azure AD (Entra ID) / Google Workspace / Rippling** — one walkthrough per IdP covering the endpoint URL fetch, token issuance (plaintext-once contract), pasting URL + token into the IdP-side admin console, mapping recipes for the IdP's specific attribute shape (Okta groups → org roles; Entra's `?aadOptscim062020` query string; Google's single-`userName` shape and 15-minute cycle; Rippling's HR-driven enterprise-extension attributes), and per-vendor troubleshooting tables.
+- **`<OrganizationProfile />` reference** additions — three new sections wired into the component (Single Sign-On, Directory Sync, Verified Domains) with their permission gates (`org:sys_enterprise_sso:manage` / `org:sys_provisioning:manage`).
+
+### Changed
+
+- **Webhooks concept** — event-type catalogue extended with the v0.6 events (`enterpriseConnection.created/updated/deleted`, `enterpriseAccount.connected/unlinked`, `scimToken.issued/revoked`, `scimUser.provisioned/deprovisioned`) including the `scimUser.*` payload triple (`{ user, enterprise_connection_id, organization_id }`). v0.4 names corrected to match the shipped surface (`externalAccount.connected`/`.unlinked`, `phoneNumber.created`/`.verified`/`.removed`; `smsTemplate.*` events do not exist).
+- **REST reference** auto-rebuilt against the v0.6 OpenAPI bundle: `EnterpriseConnection`, `EnterpriseConnectionRequest`, `EnterpriseConnectionTestResult`, `EnterpriseAccount`, `ScimUser`, `ScimGroup`, `ScimToken`, `ScimAttributeMapping`, `ScimPatchOp`, `ScimListResponse`, `ScimError` schemas; BAPI `/v1/enterprise-connections` + `/v1/enterprise-accounts` CRUD; FAPI `/v1/organizations/{org_id}/enterprise-connections` + `/v1/organizations/{org_id}/scim/*` admin surface; IdP-facing `/scim/v2/Users` + `/scim/v2/Groups` + `/scim/v2/ServiceProviderConfig` / `ResourceTypes` / `Schemas`; SAML `/v1/saml/{id}/acs` + `/metadata` and OIDC `/v1/enterprise-sso-callback` browser callbacks.
+- Sidebar reorganized — new top-level **SCIM 2.0** section listing the four IdP walkthroughs; **Concepts** adds Enterprise SSO + SCIM attribute mapping; **Guides** adds Per-org SSO setup + Verified domains.
+
 ## [0.5.0] — 2026-05-11
 
 ### Added
