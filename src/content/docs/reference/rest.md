@@ -16,6 +16,72 @@ The REST reference is generated from the [`authn-sh/openapi`](https://github.com
 - Errors follow the envelope `{ "errors": [{ "code", "message", "long_message", "meta" }], "trace_id" }`.
 - Pagination is opaque cursor-based: `?cursor=<token>&limit=<n>`. Responses include `meta.next_cursor` when more rows exist.
 
+## v0.6 endpoints (BAPI)
+
+### Enterprise SSO (instance-wide)
+
+| Method | Path | Description |
+| ------ | ---- | ----------- |
+| `GET` | `/v1/enterprise-connections` | List every `EnterpriseConnection` on the environment (instance-wide + org-scoped). |
+| `POST` | `/v1/enterprise-connections` | Create a SAML or OIDC connection. `organization_id: null` for instance-wide; set to an `Organization.id` for org-scoped. Both `protocol` and `organization_id` are immutable after create. |
+| `GET` | `/v1/enterprise-connections/{id}` | Fetch one. `oidc_client_secret` + `saml_signing_key` are never included — write-only. |
+| `PATCH` | `/v1/enterprise-connections/{id}` | Update non-immutable fields. Send `null` on `oidc_client_secret` / `saml_signing_key` to clear. |
+| `DELETE` | `/v1/enterprise-connections/{id}` | Soft-delete. Linked `EnterpriseAccount` rows survive for audit. |
+| `POST` | `/v1/enterprise-connections/{id}/test` | Dry-run probe — discovery / JWKS / certificate / redirect-URI checks. Returns `EnterpriseConnectionTestResult`. Never redirects a real user. |
+| `GET` | `/v1/enterprise-accounts` | List every `EnterpriseAccount` on the environment. |
+| `GET` | `/v1/enterprise-accounts/{id}` | Fetch one. |
+| `DELETE` | `/v1/enterprise-accounts/{id}` | Unlink — orphans the row from sign-in but preserves the audit trail. |
+
+## v0.6 endpoints (FAPI)
+
+### Org-scoped enterprise SSO
+
+| Method | Path | Description |
+| ------ | ---- | ----------- |
+| `GET` | `/v1/organizations/{org_id}/enterprise-connections` | List the org's connections. |
+| `POST` | `/v1/organizations/{org_id}/enterprise-connections` | Create. `organization_id` on the body must match (or be omitted). Requires `org:sys_enterprise_sso:manage`. |
+| `GET` | `/v1/organizations/{org_id}/enterprise-connections/{id}` | Fetch. |
+| `PATCH` | `/v1/organizations/{org_id}/enterprise-connections/{id}` | Update. |
+| `DELETE` | `/v1/organizations/{org_id}/enterprise-connections/{id}` | Soft-delete. |
+| `POST` | `/v1/organizations/{org_id}/enterprise-connections/{id}/test` | Same dry-run probe as the BAPI counterpart. |
+
+### SCIM 2.0 (IdP-facing — bearer-token auth)
+
+| Method | Path | Description |
+| ------ | ---- | ----------- |
+| `GET` | `/scim/v2/Users` | List provisioned users in the token's org. Supports SCIM filter / pagination. |
+| `POST` | `/scim/v2/Users` | Provision a user. Fires `scimUser.provisioned`. |
+| `GET` | `/scim/v2/Users/{id}` | Fetch one. |
+| `PUT` | `/scim/v2/Users/{id}` | Full replace. |
+| `PATCH` | `/scim/v2/Users/{id}` | SCIM patch operations. `active: false` triggers soft-delete + fires `scimUser.deprovisioned`. |
+| `DELETE` | `/scim/v2/Users/{id}` | Hard-delete (rare — most IdPs use `active: false` instead). |
+| `GET` | `/scim/v2/Groups` | List groups. |
+| `POST` | `/scim/v2/Groups` | Create a group. |
+| `GET` | `/scim/v2/Groups/{id}` | Fetch. |
+| `PUT` / `PATCH` / `DELETE` | `/scim/v2/Groups/{id}` | Update / delete. |
+| `GET` | `/scim/v2/ServiceProviderConfig` | Capability descriptor — IdPs probe this on connection test. |
+| `GET` | `/scim/v2/ResourceTypes` | Supported SCIM resource types. |
+| `GET` | `/scim/v2/Schemas` | Supported SCIM schemas. |
+
+### Org-scoped SCIM admin (operator-facing — same auth as the rest of FAPI)
+
+| Method | Path | Description |
+| ------ | ---- | ----------- |
+| `GET` | `/v1/organizations/{org_id}/scim/endpoint` | Read the SCIM endpoint URL the IdP admin pastes into their provisioning config. Returns `{ endpoint_url }`. Requires `org:sys_provisioning:read`. |
+| `GET` | `/v1/organizations/{org_id}/scim/tokens` | List active + revoked `ScimToken` rows. Plaintext not returned. |
+| `POST` | `/v1/organizations/{org_id}/scim/tokens` | Issue a fresh SCIM token — **plaintext returned exactly once on this response**. |
+| `POST` | `/v1/organizations/{org_id}/scim/tokens/{id}/revoke` | Revoke. Subsequent SCIM requests with this token return `401`. |
+| `GET` | `/v1/organizations/{org_id}/scim/attribute-mappings` | Read the per-org override (returns the platform defaults when no override is set). |
+| `PUT` | `/v1/organizations/{org_id}/scim/attribute-mappings` | Replace the override. `PUT` with empty `mapping: {}` reverts to defaults. |
+
+### SAML / OIDC callbacks (browser-only)
+
+| Method | Path | Description |
+| ------ | ---- | ----------- |
+| `POST` | `/v1/saml/{id}/acs` | SAML AssertionConsumerService endpoint — the IdP POSTs the assertion here. Server validates against the connection's `saml_idp_certificate`. |
+| `GET` | `/v1/saml/{id}/metadata` | SP metadata XML — the IdP ingests this URL to learn the SP's entity / ACS / signing-cert. |
+| `GET` | `/v1/enterprise-sso-callback` | Shared OIDC redirect URI for every OIDC enterprise connection in the env. Connection is identified via the OAuth `state` parameter. |
+
 ## v0.4 endpoints (BAPI)
 
 ### Social sign-in (`OauthProvider`)

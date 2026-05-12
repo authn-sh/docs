@@ -22,10 +22,16 @@ The component reads the user's current `Organization` from the JWT's `org` claim
 - **Invitations** — pending invitations; create / revoke.
 - **Domains** — verified domain list, enrollment mode (manual / auto-invitation / auto-suggestion), DNS verification flows.
 - **Membership requests** — pending sign-up requests when auto-suggestion is enabled.
+- **Single Sign-On** (v0.6+) — enterprise SSO connections (SAML / OIDC). The full add-connection wizard, IdP metadata round-trip, test-connection probe, enable / disable toggle. See [Per-org SSO setup walkthrough](/guides/per-org-sso-setup/).
+- **Directory sync** (v0.6+) — SCIM 2.0 endpoint URL, token issue / revoke, per-org attribute-mapping override. See [SCIM 2.0 with Okta](/guides/scim/okta/) (and siblings).
+- **Verified domains** (v0.6+) — domain ownership status, re-verify, deletion. Surfaces the same `OrganizationDomain` rows the **Domains** section above operates on, with the SSO-routing connection list rendered inline.
 - **Roles** — system + custom roles, permission matrix.
 - **Danger zone** — leave organization, delete organization (when allowed by environment settings).
 
-Sections are gated on the user's permissions — a member with only `org:read` sees the members list but not the admin actions; a non-admin doesn't see the danger zone at all.
+Sections are gated on the user's permissions — a member with only `org:read` sees the members list but not the admin actions; a non-admin doesn't see the danger zone at all. The v0.6 sections additionally gate:
+
+- **Single Sign-On** — visible to `org:sys_enterprise_sso:read`; mutations require `org:sys_enterprise_sso:manage`.
+- **Directory sync** — visible to `org:sys_provisioning:read`; mutations require `org:sys_provisioning:manage`.
 
 ## Props
 
