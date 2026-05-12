@@ -42,7 +42,18 @@ export default defineConfig({
                         { label: 'Passkeys', slug: 'concepts/passkeys' },
                         { label: 'Enterprise SSO', slug: 'concepts/enterprise-sso' },
                         { label: 'SCIM attribute mapping', slug: 'concepts/scim-attribute-mapping' },
+                        { label: 'JWT templates', slug: 'concepts/jwt-templates' },
                         { label: 'Webhooks', slug: 'concepts/webhooks' },
+                    ],
+                },
+                {
+                    label: 'OAuth provider mode',
+                    items: [
+                        { label: 'Overview', slug: 'concepts/oauth-provider/overview' },
+                        { label: 'Registering an application', slug: 'concepts/oauth-provider/registering-an-application' },
+                        { label: 'Authorization-code flow', slug: 'concepts/oauth-provider/authorization-code-flow' },
+                        { label: 'PKCE for public clients', slug: 'concepts/oauth-provider/pkce' },
+                        { label: 'Discovery + JWKS', slug: 'concepts/oauth-provider/discovery' },
                     ],
                 },
                 {
@@ -71,6 +82,7 @@ export default defineConfig({
                         { label: 'Azure AD / Entra ID', slug: 'guides/scim/azure-ad' },
                         { label: 'Google Workspace', slug: 'guides/scim/google-workspace' },
                         { label: 'Rippling', slug: 'guides/scim/rippling' },
+                        { label: 'SCIM admin via BAPI', slug: 'guides/scim/admin-bapi' },
                     ],
                 },
                 {
